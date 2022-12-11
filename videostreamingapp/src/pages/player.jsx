@@ -19,13 +19,20 @@ export default function Player() {
     setIsScrolled(window.pageYOffset === 0 ? false : true);
     return () => (window.onscroll = null);
   };
+  const name = movieData.name ? movieData.name : movieData.title;
+  const release = movieData.released
+    ? movieData.released
+    : movieData.release_date
+    ? movieData.release_date
+    : movieData.first_air_date;
+  const synopsis=movieData.synopsis?movieData.synopsis:movieData.overview;
   const getCast = async () => {
     try {
       if (movieData.type === "tv") {
         const castObject = await axios.get(
           `${TMDB_BASE_URL}/tv/${movieData.id}/credits?api_key=${API_KEY}`
         );
-
+        console.log(castObject.data);
         setCast(castObject.data.cast);
       } else {
         const castObject = await axios.get(
@@ -40,8 +47,8 @@ export default function Player() {
   };
   useEffect(() => {
     getCast();
-  }, []);
-  //console.log(cast);
+  }, [trailer]);
+
   const navigate = useNavigate();
   return (
     <Container>
@@ -52,23 +59,19 @@ export default function Player() {
             <iframe
               src={`https://www.youtube.com/embed/${trailer.key}`}
               height="400"
-       
-              onClick={() =>
-                navigate("/player", { state: { trailer: trailer } })
-              }
             ></iframe>
           </div>
           <div className="row mt-2 w-75">
-            <div className="col-6 " style={{width:"50%"}}>
+            <div className="col-6 " style={{ width: "50%" }}>
               <div className="synopsis">
-              <h1 className="text-center">{movieData.name}</h1>
-              <h6 className="text-end"> {movieData.released}</h6>
-                <p>{movieData.synopsis}</p>
+                <h1 className="text-center">{name}</h1>
+                <h6 className="text-end"> {release}</h6>
+                <p>{synopsis}</p>
               </div>
             </div>
 
             <div className="col-6">
-              <h2 className="mb-2" >Cast</h2>
+              <h2 className="mb-2">Cast</h2>
               <div className="overflow-scroll h-50">
                 {cast &&
                   cast.map((person, id) => {

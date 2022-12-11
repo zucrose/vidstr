@@ -10,7 +10,7 @@ import { API_KEY, TMDB_BASE_URL } from "../utils/constants";
 export default function Navbar({ isScrolled }) {
   const [showSearch, setShowSearch] = useState(false);
   const [inputHover, setInputHover] = useState(false);
-  const [searchValue, setSearchValue] = useState(null);
+  const [searchBarHover, setSearchBarHover] = useState(false);
   const [searchResult, setSearchResult] = useState(null);
   const links = [
     { name: "Home", link: "/" },
@@ -23,6 +23,41 @@ export default function Navbar({ isScrolled }) {
   onAuthStateChanged(firebaseAuth, (currentUser) => {
     if (!currentUser) navigate("/login");
   });
+  const getVideos = async (movieData) => {
+    console.log(movieData);
+    try {
+      console.log(movieData);
+      if (movieData.media_type === "tv") {
+        const VideoData = await axios.get(
+          `${TMDB_BASE_URL}/tv/${movieData.id}/videos?api_key=${API_KEY}`
+        );
+
+        console.log(VideoData.data.results);
+        const trailer = VideoData.data.results.find(
+          (vid) => vid.type === "Trailer"
+        );
+        
+        navigate("/player", {
+          state: { trailer: trailer, movieData: movieData },
+        });
+      } else {
+        const VideoData = await axios.get(
+          `${TMDB_BASE_URL}/movie/${movieData.id}/videos?api_key=${API_KEY}`
+        );
+
+        // console.log(VideoData.data.results);
+        const trailer = VideoData.data.results.find(
+          (vid) => vid.type === "Trailer"
+        );
+        navigate("/player", {
+          state: { trailer: trailer, movieData: movieData },
+        });
+        //console.log(trail);
+      }
+    } catch (err) {
+      console.log("err1", err);
+    }
+  };
   const findMovie = async (moviename) => {
     try {
       if (moviename) {
@@ -36,7 +71,7 @@ export default function Navbar({ isScrolled }) {
       console.log(err);
     }
   };
-  //console.log(searchResult);
+  console.log(showSearch,searchBarHover,inputHover);
   return (
     <Container>
       <nav className={`flex ${isScrolled ? "scrolled" : ""}`}>
@@ -57,7 +92,8 @@ export default function Navbar({ isScrolled }) {
               <button
                 onFocus={() => setShowSearch(true)}
                 onBlur={() => {
-                  if (!inputHover) setShowSearch(false);
+                
+                  if (!inputHover&&!searchBarHover) setShowSearch(false);
                 }}
               >
                 <FaSearch />
@@ -67,23 +103,32 @@ export default function Navbar({ isScrolled }) {
                 placeholder="Search"
                 onMouseEnter={() => setInputHover(true)}
                 onMouseLeave={() => setInputHover(false)}
-                onBlur={() => {
-                  setShowSearch(false);
-                  setInputHover(false);
-                }}
+                onBlur={()=>{if(!searchBarHover)
+                  setShowSearch(false);}
+                }
                 onInput={(e) => findMovie(e.target.value)}
               ></input>
             </div>
             {showSearch && searchResult && (
-              <div className="d-flex flex-column search-box overflow-scroll ">
+              <div
+                className="d-flex flex-column search-box overflow-scroll "
+                onMouseEnter={() => setSearchBarHover(true)}
+                onMouseLeave={() => setSearchBarHover(false)}
+                
+              >
                 {searchResult.map((res, id) => {
-                  if (res.media_type != "person" && res.backdrop_path!=null) {
-                    console.log(res);
-                    const title=res.title?res.title:res.name;
-                    const release=res.release_date?res.release_date:res.first_air_date;
+                  if (res.media_type != "person" && res.backdrop_path != null) {
+                    //   console.log(res);
+                    const title = res.title ? res.title : res.name;
+                    const release = res.release_date
+                      ? res.release_date
+                      : res.first_air_date;
 
                     return (
-                      <div className="d-flex flex-row justify-content-start p-2 search-result">
+                      <div
+                        className="d-flex flex-row justify-content-start p-2 search-result"
+                        onClick={() => getVideos(res)}
+                      >
                         <div>
                           <img
                             src={`https://image.tmdb.org/t/p/w500${res.backdrop_path}`}
@@ -164,7 +209,7 @@ const Container = styled.div`
         position: absolute;
         top: 5rem;
         height: 500px;
-        width:540px;
+        width: 540px;
       }
       .search {
         display: flex;
