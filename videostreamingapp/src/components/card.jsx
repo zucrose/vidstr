@@ -12,6 +12,7 @@ import { firebaseAuth } from "../utils/firebase-config";
 import { useDispatch } from "react-redux";
 import { removeFromLikedMovies } from "../store";
 import { API_KEY, TMDB_BASE_URL } from "../utils/constants";
+
 export default React.memo(function Card({ movieData, isLiked = false }) {
   const [isHovered, setIsHovered] = useState(false);
   const [email, setEmail] = useState(undefined);
@@ -25,10 +26,10 @@ export default React.memo(function Card({ movieData, isLiked = false }) {
   const dispatch = useDispatch();
   const getVideos = async () => {
     try {
-      //console.log(movieData)
-      if (movieData.type === "tv") {
+      console.log(movieData)
+      if (movieData.type === "movie") {
         const VideoData = await axios.get(
-          `${TMDB_BASE_URL}/tv/${movieData.id}/videos?api_key=${API_KEY}`
+          `${TMDB_BASE_URL}/movie/${movieData.id}/videos?api_key=${API_KEY}`
         );
 
         console.log(VideoData.data.results);
@@ -37,13 +38,18 @@ export default React.memo(function Card({ movieData, isLiked = false }) {
         );
       } else {
         const VideoData = await axios.get(
-          `${TMDB_BASE_URL}/movie/${movieData.id}/videos?api_key=${API_KEY}`
+          `${TMDB_BASE_URL}/tv/${movieData.id}/videos?api_key=${API_KEY}`
         );
 
-        // console.log(VideoData.data.results);
-        setTrailer(
-          VideoData.data.results.find((vid) => vid.type === "Trailer")
-        );
+         console.log(VideoData.data.results);
+       
+          if(VideoData.data.results.find((vid) => vid.type === "Trailer"))
+          setTrailer(
+            VideoData.data.results.find((vid) => vid.type === "Trailer")
+          );
+          else
+          setTrailer(  VideoData.data.results[0]);
+        
         //console.log(trail);
       }
     } catch (err) {
@@ -69,11 +75,12 @@ export default React.memo(function Card({ movieData, isLiked = false }) {
       }}
       onMouseLeave={() => setIsHovered(false)}
     >
+      
       <img
         src={`https://image.tmdb.org/t/p/w500${movieData.image}`}
         alt="movie"
       />
-      {isHovered && (
+      {true && (
         <div className="hover">
           <div className="image-video-container">
             {!trailer && (
@@ -90,6 +97,7 @@ export default React.memo(function Card({ movieData, isLiked = false }) {
             {trailer && (
               <iframe
                 src={`https://www.youtube.com/embed/${trailer.key}`}
+               // allow='autoplay'
                 onClick={() =>
                   navigate("/player", {
                     state: { trailer: trailer, movieData: movieData },

@@ -16,7 +16,7 @@ export default function Navbar({ isScrolled }) {
     { name: "Home", link: "/" },
     { name: "TV Shows", link: "/tv" },
     { name: "Movie", link: "/movies" },
-    { name: "My List", link: "/mylist" },
+    { name: "Bookmarks", link: "/bookmarks" },
   ];
 
   const navigate = useNavigate();
@@ -36,10 +36,12 @@ export default function Navbar({ isScrolled }) {
         const trailer = VideoData.data.results.find(
           (vid) => vid.type === "Trailer"
         );
-        
-        navigate("/player", {
+        if(trailer)
+        { navigate("/player", {
           state: { trailer: trailer, movieData: movieData },
-        });
+        });}
+        else
+        return <alert>Movie not available . Sorry!</alert>
       } else {
         const VideoData = await axios.get(
           `${TMDB_BASE_URL}/movie/${movieData.id}/videos?api_key=${API_KEY}`
@@ -49,9 +51,12 @@ export default function Navbar({ isScrolled }) {
         const trailer = VideoData.data.results.find(
           (vid) => vid.type === "Trailer"
         );
+        if(trailer)
         navigate("/player", {
           state: { trailer: trailer, movieData: movieData },
         });
+        else
+        return <alert>Movie not available . Sorry!</alert>
         //console.log(trail);
       }
     } catch (err) {
@@ -71,7 +76,7 @@ export default function Navbar({ isScrolled }) {
       console.log(err);
     }
   };
-  console.log(showSearch,searchBarHover,inputHover);
+ // console.log(showSearch,searchBarHover,inputHover);
   return (
     <Container>
       <nav className={`flex ${isScrolled ? "scrolled" : ""}`}>
@@ -201,7 +206,7 @@ const Container = styled.div`
           outline: none;
         }
         svg {
-          color: #f34242;
+          color: #0047AB;
           font-size: 1.2rem;
         }
       }

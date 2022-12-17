@@ -1,16 +1,31 @@
 import React from "react";
 import CardSlider from "./cardslider";
+import Nslider from "./nslider";
 
-export default React.memo( function Slider({movies}){
-    const getMoviesFromRange=(from,to)=>{
-        return movies.slice(from,to);
-    }
-    return ( <div>
-        <CardSlider title="Trending Now" data={getMoviesFromRange(0,10)}/>
-        <CardSlider title="New Releases" data={getMoviesFromRange(10,20)}/>
-        <CardSlider title="BlockBuster" data={getMoviesFromRange(20,30)}/>
-        <CardSlider title="Popular" data={getMoviesFromRange(30,40)}/>
-        <CardSlider title="Action" data={getMoviesFromRange(40,50)}/>
-        <CardSlider title="Epics" data={getMoviesFromRange(50,60)}/>
-    </div>);
-})
+export default React.memo(function Slider({ movies }) {
+  const getMoviesFromRange = (from, to) => {
+    return movies.slice(from, to);
+  };
+  return (
+    <div>
+      
+   {/*   <CardSlider title="Trending this week" data={getMoviesFromRange(0, 20)} />
+      <CardSlider title="Top rated Movies" data={getMoviesFromRange(20, 40)} />
+      <CardSlider
+        title="Popular Romance Flicks"
+        data={getMoviesFromRange(40, 60)}
+      />
+      <CardSlider
+        title="Popular Fantasy Movies"
+        data={getMoviesFromRange(60, 80)}
+      />
+      <CardSlider title="Top rated TV" data={getMoviesFromRange(80, 100)} />
+      <CardSlider
+        title="Popular Crime TV"
+        data={getMoviesFromRange(100, 120)}
+      />*/}
+      <Nslider title="Popular Crime TV"
+        data={getMoviesFromRange(100, 120)}/>
+    </div>
+  );
+});

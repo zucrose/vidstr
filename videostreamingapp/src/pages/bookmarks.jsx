@@ -4,14 +4,14 @@ import { firebaseAuth } from "../utils/firebase-config";
 
 import styled from "styled-components";
 
-import axios from "axios";
+
 import { onAuthStateChanged } from "firebase/auth";
-import { fetchMovies, getUserLikedMovies } from "../store";
+import {  getUserLikedMovies } from "../store";
 import { useDispatch, useSelector } from "react-redux";
 import Navbar from "../components/navbar";
 import Card from "../components/card";
 
-export default function UserLiked() {
+export default function Bookmarks() {
   const [isScrolled, setIsScrolled] = useState(false);
   window.onscroll = () => {
     setIsScrolled(window.pageYOffset === 0 ? false : true);
@@ -32,8 +32,9 @@ export default function UserLiked() {
   useEffect(() => {
     console.log(movies);
     if (email) {
-        console.log("check2",movies);
+        
       dispatch(getUserLikedMovies(email));
+      console.log("check2",movies);
     }
   }, [email]);
 
@@ -42,15 +43,14 @@ export default function UserLiked() {
     <Container>
       <Navbar isScrolled={isScrolled}/>
         <div className="content flex column">
-          <h1>My list</h1>
+          <h1>Bookmarks</h1>
           <div className="grid flex">
           {movies.map((movie, index) => {
-            
+            console.log(movie);
             return (
               <Card
-                movieData={movie}
-                index={index}
-                key={movie.id}
+                movieData={movie} 
+                
                 isLiked={true}
               />
             );

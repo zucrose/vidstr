@@ -28,15 +28,15 @@ export default function Player() {
   const synopsis=movieData.synopsis?movieData.synopsis:movieData.overview;
   const getCast = async () => {
     try {
-      if (movieData.type === "tv") {
+      if (movieData.type === "movie") {
         const castObject = await axios.get(
-          `${TMDB_BASE_URL}/tv/${movieData.id}/credits?api_key=${API_KEY}`
+          `${TMDB_BASE_URL}/movie/${movieData.id}/credits?api_key=${API_KEY}`
         );
         console.log(castObject.data);
         setCast(castObject.data.cast);
       } else {
         const castObject = await axios.get(
-          `${TMDB_BASE_URL}/movie/${movieData.id}/credits?api_key=${API_KEY}`
+          `${TMDB_BASE_URL}/tv/${movieData.id}/credits?api_key=${API_KEY}`
         );
         console.log(castObject.data);
         setCast(castObject.data.cast);

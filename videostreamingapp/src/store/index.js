@@ -18,87 +18,146 @@ export const getGenres = createAsyncThunk("vidstr/genres", async () => {
   return genres;
 });
 
-const createArrayFromRawData = (array, moviesArray, genres) => {
+const createArrayFromRawData = (array, moviesArray, genres, mediatype) => {
   array.forEach((movie) => {
     const movieGenres = [];
-    // console.log(movie);
+    //  console.log(movie);
     movie.genre_ids.forEach((genre) => {
       const name = genres.find(({ id }) => id === genre);
       if (name) movieGenres.push(name.name);
     });
-    const rel=(movie.first_air_date)?movie.first_air_date:movie.release_date;
+    const rel = movie.first_air_date
+      ? movie.first_air_date
+      : movie.release_date;
     if (movie.backdrop_path) {
       moviesArray.push({
         id: movie.id,
-        type:movie.media_type,
-        name: movie?.original_name ? movie.original_name : movie.original_title,
+        type: mediatype ? mediatype : movie.media_type,
+        name: movie.title ? movie.title : movie.name,
         image: movie.backdrop_path,
         genres: movieGenres.slice(0, 3),
-        synopsis:movie.overview,
-        released:rel,
-        
+        synopsis: movie.overview,
+        released: rel,
       });
     }
   });
 };
-const getRawData = async (api, genres, paging) => {
+const getRawData = async (api, genres, type, paging) => {
   const moviesArray = [];
   for (let i = 1; moviesArray.length < 60 && i < 10; i++) {
     const {
       data: { results },
     } = await axios.get(`${api}${paging ? `&page=${i}` : ""}`);
-    createArrayFromRawData(results, moviesArray, genres);
+    createArrayFromRawData(results, moviesArray, genres, type);
   }
   return moviesArray;
 };
+const CreateHomePage = async (genres) => {
+  const moviesArray = [];
+
+  {
+    const {
+      data: { results },
+    } = await axios.get(
+      `${TMDB_BASE_URL}/trending/all/week?api_key=${API_KEY}`
+    );
+    createArrayFromRawData(results, moviesArray, genres);
+  }
+
+  {
+    const {
+      data: { results },
+    } = await axios.get(
+      `${TMDB_BASE_URL}/discover/movie?api_key=${API_KEY}&language=en-US&vote_count.gte=1000&vote_average.gte=8`
+    );
+    createArrayFromRawData(results, moviesArray, genres, "movie");
+  }
+  {
+    const {
+      data: { results },
+    } = await axios.get(
+      `${TMDB_BASE_URL}/discover/movie?api_key=${API_KEY}&language=en-US&sort_by=popularity.desc&vote_count.gte=10000&with_genres=10749`
+    );
+    createArrayFromRawData(results, moviesArray, genres, "movie");
+  }
+  {
+    const {
+      data: { results },
+    } = await axios.get(
+      `${TMDB_BASE_URL}/discover/movie?api_key=${API_KEY}&language=en-US&sort_by=popularity.desc&vote_count.gte=10000&with_genres=14`
+    );
+    createArrayFromRawData(results, moviesArray, genres, "movie");
+  }
+  {
+    const {
+      data: { results },
+    } = await axios.get(
+      `${TMDB_BASE_URL}/discover/tv?api_key=${API_KEY}&language=en-US&vote_count.gte=1000&vote_average.gte=8`
+    );
+    createArrayFromRawData(results, moviesArray, genres, "tv");
+  }
+  {
+    const {
+      data: { results },
+    } = await axios.get(
+      `${TMDB_BASE_URL}/discover/tv?api_key=${API_KEY}&language=en-US&sort_by=popularity.desc&vote_count.gte=1000&with_genres=80`
+    );
+    createArrayFromRawData(results, moviesArray, genres, "tv");
+  }
+  console.log(moviesArray);
+  return moviesArray;
+};
 export const fetchDataByGenre = createAsyncThunk(
-  "vidstr/trending",
+  "vidstr/moviesbygenre",
   async ({ genre, type }, thunkApi) => {
     const {
       vidstr: { genres },
     } = thunkApi.getState();
     return getRawData(
       `${TMDB_BASE_URL}/discover/${type}?api_key=${API_KEY}&with_genres=${genre}`,
-      genres
+      genres,
+      type
     );
   }
 );
 export const fetchMovies = createAsyncThunk(
-  "vidstr/moviesbygenre",
+  "vidstr/trending",
   async ({ type }, thunkApi) => {
     const {
       vidstr: { genres },
     } = thunkApi.getState();
-    return getRawData(
+    /* return getRawData(
       `${TMDB_BASE_URL}/trending/${type}/week?api_key=${API_KEY}`,
       genres,
       true
     );
-
+    */
+    return CreateHomePage(genres);
     //return getRawData(`${TMDB_BASE_URL}/discover/${type}?api_key=${API_KEY}&with_genres=${genre}`)
   }
 );
 export const getUserLikedMovies = createAsyncThunk(
-    "vidstr/getLiked",
-    async (email) => {
-      const {
-        data: { movies },
-      } = await axios.get(`http://localhost:5000/api/user/liked/${email}`);
-      return movies;
-    }
-  );
+  "vidstr/getLiked",
+  async (email) => {
+    const {
+      data: { movies },
+    } = await axios.get(`http://localhost:5000/api/user/liked/${email}`);
+    return movies;
+  }
+);
 
-  export const removeFromLikedMovies = createAsyncThunk(
-    "vidstr/deleteLiked",
-    async ({movieId,email}) => {
-      const {
-        data: { movies },
-      } = await axios.put(`http://localhost:5000/api/user/delete/`,{
-        email,movieId
-      });
-      return movies;
-    }
-  );
+export const removeFromLikedMovies = createAsyncThunk(
+  "vidstr/deleteLiked",
+  async ({ movieId, email }) => {
+    const {
+      data: { movies },
+    } = await axios.put(`http://localhost:5000/api/user/delete/`, {
+      email,
+      movieId,
+    });
+    return movies;
+  }
+);
 
 const VidSlice = createSlice({
   name: "Vidstr",
@@ -118,8 +177,8 @@ const VidSlice = createSlice({
       state.movies = action.payload;
     });
     builder.addCase(removeFromLikedMovies.fulfilled, (state, action) => {
-        state.movies = action.payload;
-      });
+      state.movies = action.payload;
+    });
   },
 });
 
