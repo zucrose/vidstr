@@ -4,9 +4,8 @@ import { firebaseAuth } from "../utils/firebase-config";
 
 import styled from "styled-components";
 
-
 import { onAuthStateChanged } from "firebase/auth";
-import {  getUserLikedMovies } from "../store";
+import { getUserLikedMovies } from "../store";
 import { useDispatch, useSelector } from "react-redux";
 import Navbar from "../components/navbar";
 import Card from "../components/card";
@@ -18,46 +17,39 @@ export default function Bookmarks() {
     return () => (window.onscroll = null);
   };
   const navigate = useNavigate();
- 
+
   const movies = useSelector((state) => state.vidstr.movies);
-  
+  console.log(movies);
   const [email, setEmail] = useState(undefined);
-  onAuthStateChanged(firebaseAuth, (currentUser) => {
-    console.log("fbcalled")
-    if (currentUser) setEmail(currentUser.email);
-    else navigate("/login");
-  });
+
   const dispatch = useDispatch();
 
   useEffect(() => {
+    onAuthStateChanged(firebaseAuth, (currentUser) => {
+      console.log("fbcalled");
+      if (currentUser) setEmail(currentUser.email);
+      else navigate("/login");
+    });
     console.log(movies);
     if (email) {
-        
       dispatch(getUserLikedMovies(email));
-      console.log("check2",movies);
+      console.log("check2", movies);
     }
   }, [email]);
 
-  
   return (
     <Container>
-      <Navbar isScrolled={isScrolled}/>
-        <div className="content flex column">
-          <h1>Bookmarks</h1>
-          <div className="grid flex">
-          {movies.map((movie, index) => {
-            console.log(movie);
-            return (
-              <Card
-                movieData={movie} 
-                
-                isLiked={true}
-              />
-            );
-          })}
+      <Navbar isScrolled={isScrolled} />
+      <div className="content flex column">
+        <h1>Bookmarks</h1>
+        <div className="grid flex">
+          {movies &&
+            movies.map((movie, index) => {
+              // console.log(movie);
+              return <Card movieData={movie} isLiked={true} />;
+            })}
         </div>
-        </div>
-      
+      </div>
     </Container>
   );
 }

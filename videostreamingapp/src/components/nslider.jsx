@@ -15,6 +15,7 @@ export default function Nslider({ data, title }) {
     desktop: {
       breakpoint: { max: 3000, min: 1024 },
       items: 5,
+      slidesToSlide: 1,
     },
     tablet: {
       breakpoint: { max: 1024, min: 464 },
@@ -27,13 +28,9 @@ export default function Nslider({ data, title }) {
   };
 
   return (
-    <Container className="flex column">
-      <h1>{title}</h1>
-      <Carousel
-        responsive={responsive}
-        infinite={true}
-       
-      >
+    <Container className="flex column m-5">
+      <h1 className="m-5">{title}</h1>
+      <Carousel responsive={responsive} infinite={true}>
         {data.map((movie, index) => {
           return <Card movieData={movie} index={index} key={movie.id} />;
         })}

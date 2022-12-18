@@ -8,8 +8,7 @@ export default React.memo(function Slider({ movies }) {
   };
   return (
     <div>
-      
-   {/*   <CardSlider title="Trending this week" data={getMoviesFromRange(0, 20)} />
+      {/*  <CardSlider title="Trending this week" data={getMoviesFromRange(0, 20)} />
       <CardSlider title="Top rated Movies" data={getMoviesFromRange(20, 40)} />
       <CardSlider
         title="Popular Romance Flicks"
@@ -23,9 +22,19 @@ export default React.memo(function Slider({ movies }) {
       <CardSlider
         title="Popular Crime TV"
         data={getMoviesFromRange(100, 120)}
-      />*/}
-      <Nslider title="Popular Crime TV"
-        data={getMoviesFromRange(100, 120)}/>
+  />*/}
+      <Nslider title="Trending this week" data={getMoviesFromRange(0, 20)} />
+      <Nslider title="Top rated Movies" data={getMoviesFromRange(20, 40)} />
+      <Nslider
+        title="Popular Romance Flicks"
+        data={getMoviesFromRange(40, 60)}
+      />
+      <Nslider
+        title="Popular Fantasy Movies"
+        data={getMoviesFromRange(60, 80)}
+      />
+      <Nslider title="Top rated TV" data={getMoviesFromRange(80, 100)} />
+      <Nslider title="Popular Crime TV" data={getMoviesFromRange(100, 120)} />
     </div>
   );
 });

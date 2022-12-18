@@ -26,7 +26,7 @@ export default React.memo(function Card({ movieData, isLiked = false }) {
   const dispatch = useDispatch();
   const getVideos = async () => {
     try {
-      console.log(movieData)
+      console.log(movieData);
       if (movieData.type === "movie") {
         const VideoData = await axios.get(
           `${TMDB_BASE_URL}/movie/${movieData.id}/videos?api_key=${API_KEY}`
@@ -41,15 +41,14 @@ export default React.memo(function Card({ movieData, isLiked = false }) {
           `${TMDB_BASE_URL}/tv/${movieData.id}/videos?api_key=${API_KEY}`
         );
 
-         console.log(VideoData.data.results);
-       
-          if(VideoData.data.results.find((vid) => vid.type === "Trailer"))
+        console.log(VideoData.data.results);
+
+        if (VideoData.data.results.find((vid) => vid.type === "Trailer"))
           setTrailer(
             VideoData.data.results.find((vid) => vid.type === "Trailer")
           );
-          else
-          setTrailer(  VideoData.data.results[0]);
-        
+        else setTrailer(VideoData.data.results[0]);
+
         //console.log(trail);
       }
     } catch (err) {
@@ -66,6 +65,17 @@ export default React.memo(function Card({ movieData, isLiked = false }) {
       console.log(err);
     }
   };
+  const mystyle = {
+    backgroundImage:
+      "url(https://image.tmdb.org/t/p/w500" + movieData.image + ")",
+    objectFit: "cover",
+    backgroundSize: "cover",
+    backgroundRepeat: "no-repeat",
+    backgroundPosition: "center",
+
+    width: "100%",
+    height: "100%",
+  };
   // console.log(movieData);
   return (
     <Container
@@ -74,13 +84,103 @@ export default React.memo(function Card({ movieData, isLiked = false }) {
         if (trailer === null) getVideos();
       }}
       onMouseLeave={() => setIsHovered(false)}
+      className="extra-2 flex column"
     >
-      
-      <img
-        src={`https://image.tmdb.org/t/p/w500${movieData.image}`}
-        alt="movie"
-      />
-      {true && (
+      {/*<div
+        style={mystyle}
+        onClick={() =>
+          navigate("/player", {
+            state: { trailer: trailer, movieData: movieData },
+          })
+        }
+      }
+        <h3 className="name">{movieData.name}</h3>
+      </div>
+    */}
+      <div className="card card-color ">
+        {!isHovered && (
+          <img
+            src={`https://image.tmdb.org/t/p/w500${movieData.image}`}
+            alt="movie"
+            className="card-img-top"
+            onClick={() =>
+              navigate("/player", {
+                state: { trailer: trailer, movieData: movieData },
+              })
+            }
+          />
+        )}
+        {isHovered && trailer && (
+          <iframe
+            src={`https://www.youtube.com/embed/${trailer.key}`}
+            // allow='autoplay'
+            onClick={() =>
+              navigate("/player", {
+                state: { trailer: trailer, movieData: movieData },
+              })
+            }
+          ></iframe>
+        )}
+        <div className="card-body ">
+          <h5
+            className="card-title"
+            onClick={() =>
+              navigate("/player", {
+                state: { trailer: trailer, movieData: movieData },
+              })
+            }
+          >
+            {movieData.name}
+          </h5>
+          <div className="icons flex j-between">
+            <div className="controls flex">
+              <IoPlayCircleSharp
+                title="play"
+                size={30}
+                onClick={() =>
+                  navigate("/player", {
+                    state: { trailer: trailer, movieData: movieData },
+                  })
+                }
+              />
+
+              {isLiked ? (
+                <BsCheck
+                  title="Remove From List"
+                  size={30}
+                  onClick={() =>
+                    dispatch(
+                      removeFromLikedMovies({ movieId: movieData.id, email })
+                    )
+                  }
+                />
+              ) : (
+                <AiOutlinePlus
+                  title="Add to List"
+                  onClick={addToList}
+                  size={30}
+                />
+              )}
+            </div>
+          </div>
+          <div
+            className="genres flex "
+            onClick={() =>
+              navigate("/player", {
+                state: { trailer: trailer, movieData: movieData },
+              })
+            }
+          >
+            <ul className="flex">
+              {movieData.genres.map((genre) => (
+                <li>{genre}</li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      {/*isHovered && (
         <div className="hover">
           <div className="image-video-container">
             {!trailer && (
@@ -97,7 +197,7 @@ export default React.memo(function Card({ movieData, isLiked = false }) {
             {trailer && (
               <iframe
                 src={`https://www.youtube.com/embed/${trailer.key}`}
-               // allow='autoplay'
+                // allow='autoplay'
                 onClick={() =>
                   navigate("/player", {
                     state: { trailer: trailer, movieData: movieData },
@@ -151,25 +251,52 @@ export default React.memo(function Card({ movieData, isLiked = false }) {
             </div>
           </div>
         </div>
-      )}
+                )*/}
     </Container>
   );
 });
 const Container = styled.div`
-  max-width: 230px;
+  max-width: 300px;
   width: 230px;
-  height: 100%;
+
   cursor: pointer;
   position: relative;
+  .card-color {
+    background-color: #0c090a;
+    max-height: 340px;
+    min-height: 340px;
+  }
+  .genres {
+    ul {
+      gap: 1rem;
+      padding-right: 0.7rem;
+      flex-wrap: wrap;
+      li {
+        padding-right: 0.7rem;
+        list-style-type: disc;
+      }
+    }
+  }
   img {
     border-radius: 0.2rem;
     width: 100%;
     height: 100%;
     z-index: 10;
   }
+  .info-container {
+    padding: 1rem;
+    gap: 0.5rem;
+  }
+  .icons {
+    .controls {
+      display: flex;
+      gap: 1rem;
+    }
+  }
+
   .hover {
-    z-index: 99;
-    height: max-content;
+    z-index: 990;
+    height: 320px;
     width: 20rem;
     position: absolute;
     top: -18vh;
@@ -198,35 +325,6 @@ const Container = styled.div`
         top: 0;
         z-index: 5;
         position: absolute;
-      }
-    }
-    .info-container {
-      padding: 1rem;
-      gap: 0.5rem;
-    }
-    .icons {
-      .controls {
-        display: flex;
-        gap: 1rem;
-      }
-      svg {
-        font-size: 2rem;
-        cursor: pointer;
-        transition: 0.3s ease-in-out;
-        &:hover {
-          color: #b8b8b8;
-        }
-      }
-    }
-    .genres {
-      ul {
-        gap: 1rem;
-        li {
-          padding-right: 0.7rem;
-          &:first-of-type {
-            list-style-type: none;
-          }
-        }
       }
     }
   }

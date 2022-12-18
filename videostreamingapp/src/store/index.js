@@ -104,7 +104,7 @@ const CreateHomePage = async (genres) => {
     );
     createArrayFromRawData(results, moviesArray, genres, "tv");
   }
-  console.log(moviesArray);
+  // console.log(moviesArray);
   return moviesArray;
 };
 export const fetchDataByGenre = createAsyncThunk(
@@ -151,10 +151,12 @@ export const removeFromLikedMovies = createAsyncThunk(
   async ({ movieId, email }) => {
     const {
       data: { movies },
+      msg,
     } = await axios.put(`http://localhost:5000/api/user/delete/`, {
       email,
       movieId,
     });
+    console.log(msg);
     return movies;
   }
 );
@@ -174,10 +176,10 @@ const VidSlice = createSlice({
       state.movies = action.payload;
     });
     builder.addCase(getUserLikedMovies.fulfilled, (state, action) => {
-      state.movies = action.payload;
+      state.movies = action.payload || [];
     });
     builder.addCase(removeFromLikedMovies.fulfilled, (state, action) => {
-      state.movies = action.payload;
+      state.movies = action.payload || [];
     });
   },
 });

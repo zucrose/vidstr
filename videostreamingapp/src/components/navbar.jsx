@@ -6,6 +6,7 @@ import { onAuthStateChanged, signOut } from "firebase/auth";
 import { firebaseAuth } from "../utils/firebase-config";
 import axios from "axios";
 import { API_KEY, TMDB_BASE_URL } from "../utils/constants";
+import { useEffect } from "react";
 
 export default function Navbar({ isScrolled }) {
   const [showSearch, setShowSearch] = useState(false);
@@ -20,9 +21,13 @@ export default function Navbar({ isScrolled }) {
   ];
 
   const navigate = useNavigate();
-  onAuthStateChanged(firebaseAuth, (currentUser) => {
-    if (!currentUser) navigate("/login");
-  });
+  useEffect(() => {
+    onAuthStateChanged(firebaseAuth, (currentUser) => {
+      console.log("fbcalled");
+      if (!currentUser) navigate("/login");
+    });
+  }, []);
+
   const getVideos = async (movieData) => {
     console.log(movieData);
     try {
@@ -36,12 +41,11 @@ export default function Navbar({ isScrolled }) {
         const trailer = VideoData.data.results.find(
           (vid) => vid.type === "Trailer"
         );
-        if(trailer)
-        { navigate("/player", {
-          state: { trailer: trailer, movieData: movieData },
-        });}
-        else
-        return <alert>Movie not available . Sorry!</alert>
+        if (trailer) {
+          navigate("/player", {
+            state: { trailer: trailer, movieData: movieData },
+          });
+        } else return <alert>Movie not available . Sorry!</alert>;
       } else {
         const VideoData = await axios.get(
           `${TMDB_BASE_URL}/movie/${movieData.id}/videos?api_key=${API_KEY}`
@@ -51,12 +55,11 @@ export default function Navbar({ isScrolled }) {
         const trailer = VideoData.data.results.find(
           (vid) => vid.type === "Trailer"
         );
-        if(trailer)
-        navigate("/player", {
-          state: { trailer: trailer, movieData: movieData },
-        });
-        else
-        return <alert>Movie not available . Sorry!</alert>
+        if (trailer)
+          navigate("/player", {
+            state: { trailer: trailer, movieData: movieData },
+          });
+        else return <alert>Movie not available . Sorry!</alert>;
         //console.log(trail);
       }
     } catch (err) {
@@ -76,7 +79,7 @@ export default function Navbar({ isScrolled }) {
       console.log(err);
     }
   };
- // console.log(showSearch,searchBarHover,inputHover);
+  // console.log(showSearch,searchBarHover,inputHover);
   return (
     <Container>
       <nav className={`flex ${isScrolled ? "scrolled" : ""}`}>
@@ -97,8 +100,7 @@ export default function Navbar({ isScrolled }) {
               <button
                 onFocus={() => setShowSearch(true)}
                 onBlur={() => {
-                
-                  if (!inputHover&&!searchBarHover) setShowSearch(false);
+                  if (!inputHover && !searchBarHover) setShowSearch(false);
                 }}
               >
                 <FaSearch />
@@ -108,9 +110,9 @@ export default function Navbar({ isScrolled }) {
                 placeholder="Search"
                 onMouseEnter={() => setInputHover(true)}
                 onMouseLeave={() => setInputHover(false)}
-                onBlur={()=>{if(!searchBarHover)
-                  setShowSearch(false);}
-                }
+                onBlur={() => {
+                  if (!searchBarHover) setShowSearch(false);
+                }}
                 onInput={(e) => findMovie(e.target.value)}
               ></input>
             </div>
@@ -119,7 +121,6 @@ export default function Navbar({ isScrolled }) {
                 className="d-flex flex-column search-box overflow-scroll "
                 onMouseEnter={() => setSearchBarHover(true)}
                 onMouseLeave={() => setSearchBarHover(false)}
-                
               >
                 {searchResult.map((res, id) => {
                   if (res.media_type != "person" && res.backdrop_path != null) {
@@ -206,7 +207,7 @@ const Container = styled.div`
           outline: none;
         }
         svg {
-          color: #0047AB;
+          color: #0047ab;
           font-size: 1.2rem;
         }
       }
