@@ -6,7 +6,6 @@ import { firebaseAuth } from "../utils/firebase-config";
 import { useNavigate } from "react-router-dom";
 
 export default function Login() {
- 
   const [formValues, setformValues] = useState({
     email: "",
     password: "",
@@ -46,26 +45,21 @@ export default function Login() {
                   })
                 }
               />
-             
-                <input
-                  type="password"
-                  placeholder="Password"
-                  name="password"
-                  value={formValues.password}
-                  onChange={(e) =>
-                    setformValues({
-                      ...formValues,
-                      [e.target.name]: e.target.value,
-                    })
-                  }
-                />
-              
 
-              
-                <button onClick={handleLogIn}>
-                Log In
-                </button>
-            
+              <input
+                type="password"
+                placeholder="Password"
+                name="password"
+                value={formValues.password}
+                onChange={(e) =>
+                  setformValues({
+                    ...formValues,
+                    [e.target.name]: e.target.value,
+                  })
+                }
+              />
+
+              <button onClick={handleLogIn}>Log In</button>
             </div>
           </div>
         </div>
@@ -100,7 +94,7 @@ const Container = styled.div`
           }
           button {
             padding: 0.5rem 1rem;
-            background-color: #e50914;
+            background-color: #0047ab;
             border: none;
             cursor: pointer;
             color: white;

@@ -55,7 +55,8 @@ export default React.memo(function Card({ movieData, isLiked = false }) {
       console.log("err1", err);
     }
   };
-  const addToList = async () => {
+  const addToList = async (event) => {
+    event.stopPropagation();
     try {
       await axios.post("http://localhost:5000/api/user/add", {
         email,
@@ -97,7 +98,14 @@ export default React.memo(function Card({ movieData, isLiked = false }) {
         <h3 className="name">{movieData.name}</h3>
       </div>
     */}
-      <div className="card card-color ">
+      <div
+        className="card card-color "
+        onClick={() =>
+          navigate("/player", {
+            state: { trailer: trailer, movieData: movieData },
+          })
+        }
+      >
         {!isHovered && (
           <img
             src={`https://image.tmdb.org/t/p/w500${movieData.image}`}
@@ -148,11 +156,12 @@ export default React.memo(function Card({ movieData, isLiked = false }) {
                 <BsCheck
                   title="Remove From List"
                   size={30}
-                  onClick={() =>
+                  onClick={(event) => {
+                    event.stopPropagation();
                     dispatch(
                       removeFromLikedMovies({ movieId: movieData.id, email })
-                    )
-                  }
+                    );
+                  }}
                 />
               ) : (
                 <AiOutlinePlus

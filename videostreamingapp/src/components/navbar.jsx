@@ -84,6 +84,7 @@ export default function Navbar({ isScrolled }) {
     <Container>
       <nav className={`flex ${isScrolled ? "scrolled" : ""}`}>
         <div className="left flex a-center">
+          <h5 className="vidster">Vidster</h5>
           <ul className="links flex">
             {links.map(({ name, link }) => {
               return (
@@ -165,16 +166,20 @@ export default function Navbar({ isScrolled }) {
 }
 const Container = styled.div`
   .scrolled {
-    background-color: black;
+    background-color: #0f0d0d;
+  }
+  .vidster {
+    color: #9bb8e0;
   }
   nav {
     position: sticky;
     top: 0;
-    height: 6.5rem;
+    height: 4.5rem;
     width: 100%;
     justify-content: space-between;
     position: fixed;
     top: 0;
+    background-color: #0f0d0d;
     z-index: 2;
     padding: 0 4rem;
     align-items: center;
@@ -213,7 +218,7 @@ const Container = styled.div`
       }
       .search-box {
         position: absolute;
-        top: 5rem;
+        top: 4.5rem;
         height: 500px;
         width: 540px;
       }

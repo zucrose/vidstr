@@ -2,7 +2,7 @@ import React from "react";
 import CardSlider from "./cardslider";
 import Nslider from "./nslider";
 
-export default React.memo(function Slider({ movies }) {
+export default React.memo(function Slider({ movies, recomended }) {
   const getMoviesFromRange = (from, to) => {
     return movies.slice(from, to);
   };
@@ -24,6 +24,9 @@ export default React.memo(function Slider({ movies }) {
         data={getMoviesFromRange(100, 120)}
   />*/}
       <Nslider title="Trending this week" data={getMoviesFromRange(0, 20)} />
+      {recomended.length > 0 ? (
+        <Nslider title="Recommendation based on your lists" data={recomended} />
+      ) : null}
       <Nslider title="Top rated Movies" data={getMoviesFromRange(20, 40)} />
       <Nslider
         title="Popular Romance Flicks"

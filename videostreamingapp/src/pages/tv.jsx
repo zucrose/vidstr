@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import Navbar from "../components/navbar";
 import NotAvailable from "../components/notavailable";
+import Nslider from "../components/nslider";
 import SelectGenre from "../components/SelectGenre";
 import Slider from "../components/slider";
 import { fetchMovies, getGenres } from "../store";
@@ -23,28 +24,38 @@ export default function TV() {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(getGenres());
+    dispatch(getGenres("tv"));
   }, []);
 
   useEffect(() => {
     if (genresLoaded) dispatch(fetchMovies({ type: "tv" }));
-  },[genresLoaded]);
+  }, [genresLoaded]);
 
   onAuthStateChanged(firebaseAuth, (currentUser) => {
     //if (currentUser) navigate("/");
   });
+  const getMoviesFromRange = (from, to) => {
+    return movies.slice(from, to);
+  };
+
   return (
     <Container>
       <div className="navbar">
-        <Navbar isScrolled={isScrolled}/>
+        <Navbar isScrolled={isScrolled} />
       </div>
-      
-      <div className="data">
-      <SelectGenre genres={genres} type="tv"></SelectGenre>
-        {
-            movies.length? <Slider movies={movies}/>:<NotAvailable/>
 
-        }
+      <div className="data">
+        <SelectGenre genres={genres} type="tv"></SelectGenre>
+        {movies.length ? (
+          <div>
+            <Nslider data={getMoviesFromRange(0, 10)} />
+            <Nslider data={getMoviesFromRange(10, 20)} />
+            <Nslider data={getMoviesFromRange(20, 30)} />
+            <Nslider data={getMoviesFromRange(30, 40)} />
+          </div>
+        ) : (
+          <NotAvailable />
+        )}
       </div>
     </Container>
   );

@@ -1,29 +1,34 @@
 import React, { useState } from "react";
-import {createUserWithEmailAndPassword, onAuthStateChanged} from "firebase/auth"
+import {
+  createUserWithEmailAndPassword,
+  onAuthStateChanged,
+} from "firebase/auth";
 import styled from "styled-components";
 import Header from "../components/header";
-import {firebaseAuth} from "../utils/firebase-config";
+import { firebaseAuth } from "../utils/firebase-config";
 import { useNavigate } from "react-router-dom";
+import { Alert, Button } from "@mui/material";
 export default function Signup() {
   const [showPassword, setShowPassword] = useState(false);
   const [formValues, setformValues] = useState({
     email: "",
     password: "",
   });
+
   const navigate = useNavigate();
 
-  const handleSignIn=async()=>{
-   try{
-         const {email,password}=formValues;
-         await createUserWithEmailAndPassword(firebaseAuth,email,password);
-   }
-   catch(err){
-    console.log(err);
-   }
-}
-onAuthStateChanged(firebaseAuth,(currentUser)=>{
-    if(currentUser)navigate("/");
-})
+  const handleSignIn = async () => {
+    try {
+      const { email, password } = formValues;
+      await createUserWithEmailAndPassword(firebaseAuth, email, password);
+    } catch (err) {
+      console.log(err);
+      return <Alert>{err}</Alert>;
+    }
+  };
+  onAuthStateChanged(firebaseAuth, (currentUser) => {
+    if (currentUser) navigate("/");
+  });
   return (
     <Container showPassword={showPassword}>
       <div className="content">
@@ -31,34 +36,45 @@ onAuthStateChanged(firebaseAuth,(currentUser)=>{
 
         <div className="body flex column a-center j-center">
           <div className="text flex column">
-            <h1>Unlimited movies, TV shows and more.</h1>
-            <h4>Watch anywhere. Cancel anytime.</h4>
-            <h6>
-              Ready to watch? Enter your email to create or restart membership.
-            </h6>
+            <h1>Sign Up</h1>
           </div>
-          <div className="form">
-            <input
-              type="email"
-              placeholder="Email Address"
-              name="email"
-              value={formValues.email}
-              onChange={(e)=>setformValues({
-                ...formValues,
-                [e.target.name]: e.target.value,
-              })}
-            />
-            {showPassword && (
-              <input type="password" placeholder="Password" name="password" value={formValues.password}
-               onChange={(e)=>setformValues({
-                ...formValues,
-                [e.target.name]: e.target.value,
-              })}/>
-            )}
-
-            {!showPassword && (
-              <button onClick={() => setShowPassword(true)}>Get started</button>
-            )}
+          <div
+            className="form "
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              textAlign: "center",
+            }}
+          >
+            <div>
+              <input
+                type="email"
+                placeholder="Email Address"
+                name="email"
+                value={formValues.email}
+                onChange={(e) =>
+                  setformValues({
+                    ...formValues,
+                    [e.target.name]: e.target.value,
+                  })
+                }
+              />
+            </div>
+            <div className="m-2">
+              {" "}
+              <input
+                type="password"
+                placeholder="Password"
+                name="password"
+                value={formValues.password}
+                onChange={(e) =>
+                  setformValues({
+                    ...formValues,
+                    [e.target.name]: e.target.value,
+                  })
+                }
+              />
+            </div>
           </div>
           <button onClick={handleSignIn}>Sign Up</button>
         </div>
@@ -67,9 +83,7 @@ onAuthStateChanged(firebaseAuth,(currentUser)=>{
   );
 }
 const Container = styled.div`
-  position: relative;
   .content {
-    position: absolute;
     top: 0;
     left: 0;
     background-color: rgba(0, 0, 0, 0.5);
@@ -89,8 +103,7 @@ const Container = styled.div`
       }
       .form {
         display: grid;
-        grid-template-columns: ${({ showPassword }) =>
-          showPassword ? "1fr 1fr" : "2fr 1fr"};
+
         width: 60%;
         input {
           color: black;
@@ -114,7 +127,7 @@ const Container = styled.div`
       }
       button {
         padding: 0.5rem 1rem;
-        background-color: #e50914;
+        background-color: #0047ab;
         border: none;
         cursor: pointer;
         color: white;

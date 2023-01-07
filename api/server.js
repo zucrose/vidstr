@@ -1,17 +1,23 @@
 const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
-const userRoutes=require("./routes/UserRoutes")
+require("dotenv").config();
+const userRoutes = require("./routes/UserRoutes");
+const movieRoutes = require("./routes/MovieRoutes");
 const app = express();
 
 app.use(cors());
 app.use(express.json());
-
-mongoose.connect("mongodb://localhost:27017/vidstr", {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-}).then(()=>{
-    console.log("DB connected")
-});
-app.use("/api/user",userRoutes);
+const url = process.env.MONGO_URL;
+//console.log(url);
+mongoose
+  .connect(url, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => {
+    console.log("DB connected");
+  });
+app.use("/api/user", userRoutes);
+app.use("/api/movie", movieRoutes);
 app.listen(5000, console.log("started"));

@@ -10,11 +10,12 @@ const initialState = {
   movies: [],
   genresLoaded: false,
   genres: [],
+  recommended: [],
 };
-export const getGenres = createAsyncThunk("vidstr/genres", async () => {
+export const getGenres = createAsyncThunk("vidstr/genres", async (type) => {
   const {
     data: { genres },
-  } = await axios.get(`${TMDB_BASE_URL}/genre/movie/list?api_key=${API_KEY}`);
+  } = await axios.get(`${TMDB_BASE_URL}/genre/${type}/list?api_key=${API_KEY}`);
   return genres;
 });
 
@@ -50,6 +51,8 @@ const getRawData = async (api, genres, type, paging) => {
     } = await axios.get(`${api}${paging ? `&page=${i}` : ""}`);
     createArrayFromRawData(results, moviesArray, genres, type);
   }
+
+  console.log(moviesArray);
   return moviesArray;
 };
 const CreateHomePage = async (genres) => {
@@ -114,9 +117,10 @@ export const fetchDataByGenre = createAsyncThunk(
       vidstr: { genres },
     } = thunkApi.getState();
     return getRawData(
-      `${TMDB_BASE_URL}/discover/${type}?api_key=${API_KEY}&with_genres=${genre}`,
+      `${TMDB_BASE_URL}/discover/${type}?api_key=${API_KEY}&vote_count.gte=100&with_genres=${genre}`,
       genres,
-      type
+      type,
+      true
     );
   }
 );
@@ -126,12 +130,7 @@ export const fetchMovies = createAsyncThunk(
     const {
       vidstr: { genres },
     } = thunkApi.getState();
-    /* return getRawData(
-      `${TMDB_BASE_URL}/trending/${type}/week?api_key=${API_KEY}`,
-      genres,
-      true
-    );
-    */
+
     return CreateHomePage(genres);
     //return getRawData(`${TMDB_BASE_URL}/discover/${type}?api_key=${API_KEY}&with_genres=${genre}`)
   }
@@ -160,6 +159,52 @@ export const removeFromLikedMovies = createAsyncThunk(
     return movies;
   }
 );
+/*export const createRecommendedMovies = async (movie, moviesArray, genres) => {
+  console.log(movie);
+  const {
+    data: { results },
+  } = await axios.get(
+    `${TMDB_BASE_URL}/${movie.type}/${movie.id}/similar?api_key=${API_KEY}&language=en-US&sort_by=popularity.desc&vote_count.gte=100`
+  );
+  console.log(results);
+  const slicedlist = results.slice(0, 3);
+  createArrayFromRawData(slicedlist, moviesArray, genres, movie.type);
+  console.log(moviesArray);
+};*/
+export const getRecommended = createAsyncThunk(
+  "vidstr/recommended",
+  async ({ email }, thunkApi) => {
+    console.log("recommended called", email);
+    const {
+      vidstr: { genres },
+    } = thunkApi.getState();
+
+    const {
+      data: { movies },
+    } = await axios.get(`http://localhost:5000/api/user/liked/${email}`);
+
+    console.log(movies);
+    const moviesArray = [];
+
+    for (let i = 0; i < movies.length; i++) {
+      //console.log(mov);
+      let movie = movies[i];
+      const {
+        data: { results },
+      } = await axios.get(
+        `${TMDB_BASE_URL}/${movie.type}/${movie.id}/similar?api_key=${API_KEY}&language=en-US&sort_by=popularity.desc&vote_count.gte=100`
+      );
+
+      console.log(results);
+      const slicedlist = results.slice(0, 3);
+      createArrayFromRawData(slicedlist, moviesArray, genres, movie.type);
+      //console.log(moviesArray);
+    }
+
+    console.log("final", moviesArray);
+    return moviesArray;
+  }
+);
 
 const VidSlice = createSlice({
   name: "Vidstr",
@@ -180,6 +225,10 @@ const VidSlice = createSlice({
     });
     builder.addCase(removeFromLikedMovies.fulfilled, (state, action) => {
       state.movies = action.payload || [];
+    });
+    builder.addCase(getRecommended.fulfilled, (state, action) => {
+      //console.log(action);
+      state.recommended = action.payload || [];
     });
   },
 });
